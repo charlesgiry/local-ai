@@ -1,5 +1,7 @@
 services:
   # TEXT
+
+  # https://github.com/oobabooga/text-generation-webui
   text-generation-webui:
     build: text/text-generation-webui
     ports:
@@ -13,12 +15,13 @@ services:
               count: all
               capabilities: [ gpu ]
 
-  ollama-backend:
+  # https://ollama.com/
+  ollama:
     image: ollama/ollama
     ports:
       - "11434:11434"
     volumes:
-      - ./text/ollama:/root/.ollama
+      - ollama-volume:/root/.ollama
     deploy:
       resources:
         reservations:
@@ -27,20 +30,23 @@ services:
               count: all
               capabilities: [ gpu ]
 
+  # Text GUI
+  # https://github.com/open-webui/open-webui
   open-webui:
     image: ghcr.io/open-webui/open-webui
     ports:
       - "8080:8080"
     environment:
       - WEBUI_AUTH=False
-      - OLLAMA_BASE_URL=http://ollama-backend:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
-      - ./text/open-webui:/app/backend/data
+      - open-webui-volume:/app/backend/data
     depends_on:
-      - ollama-backend
+      - ollama
 
 
   # IMAGES
+  # https://github.com/AUTOMATIC1111/stable-diffusion-webui
   stable-diffusion-webui:
     user: 1000:1000
     build: images/stable-diffusion-webui
@@ -60,6 +66,7 @@ services:
               count: all
               capabilities: [ gpu ]
 
+  # https://github.com/lllyasviel/stable-diffusion-webui-forge
   forge:
     user: 1000:1000
     build: images/forge
@@ -79,6 +86,28 @@ services:
               count: all
               capabilities: [ gpu ]
 
+  # https://github.com/Panchovix/stable-diffusion-webui-reForge.git
+  reforge:
+    user: 1000:1000
+    build: images/reforge
+    entrypoint: [ "python3", "webui.py", "--listen", "--port", "8080", "--cuda-malloc", "--cuda-stream", "--xformers"]
+    volumes:
+      - "./images/reforge/outputs:/app/outputs"
+      - "./images/reforge/models:/app/models"
+      - "./images/reforge/embeddings:/app/embeddings"
+      - "./images/reforge/extensions:/app/extensions"
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  # MUSIC
+  # https://github.com/ace-step/ACE-Step
   ace-step:
     build: music/ace-step
     entrypoint: ["python3", "./acestep/gui.py", "--server_name", "0.0.0.0", "--bf16", "true", "--port", "8080", "--torch_compile", "True"]
@@ -86,7 +115,7 @@ services:
       - "8080:8080"
     volumes:
       - "./music/ace-step/outputs:/app/outputs"
-      - "./music/ace-step/checkpoints:/home/user/.cache/ace-step/checkpoints"
+      - "ace-step-volume:/home/user/.cache/ace-step/checkpoints"
     environment:
       - ACE_OUTPUT_DIR=/app/outputs
     deploy:
@@ -96,3 +125,8 @@ services:
             - driver: nvidia
               count: all
               capabilities: [ gpu ]
+
+volumes:
+  ace-step-volume:
+  ollama-volume:
+  open-webui-volume:
