@@ -55,13 +55,21 @@ Will optimize the image later
 
 ### ollama
 
-TODO
+https://github.com/ollama/ollama
 
 ### KoboldCPP
 
 https://github.com/LostRuins/koboldcpp
 
 TODO
+
+## Text generation frontend
+
+### open-webui
+
+https://github.com/open-webui/open-webui
+
+Note: i'm only currently running it as a frontend for ollama
 
 ## Image Generation
 

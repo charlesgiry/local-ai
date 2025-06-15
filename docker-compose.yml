@@ -13,6 +13,32 @@ services:
               count: all
               capabilities: [ gpu ]
 
+  ollama-backend:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./text/ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui
+    ports:
+      - "8080:8080"
+    environment:
+      - WEBUI_AUTH=False
+      - OLLAMA_BASE_URL=http://ollama-backend:11434
+    volumes:
+      - ./text/open-webui:/app/backend/data
+    depends_on:
+      - ollama-backend
+
 
   # IMAGES
   stable-diffusion-webui:
