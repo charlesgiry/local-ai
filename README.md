@@ -87,12 +87,6 @@ https://github.com/Panchovix/stable-diffusion-webui-reForge
 
 TODO
 
-### ComfyUI
-
-https://github.com/comfyanonymous/ComfyUI
-
-TODO
-
 ## Music
 
 ### ACE-Step
@@ -102,3 +96,9 @@ https://github.com/ace-step/ACE-Step
 ## Video
 
 TODO
+
+
+## Multi type
+### ComfyUI
+
+https://github.com/comfyanonymous/ComfyUI

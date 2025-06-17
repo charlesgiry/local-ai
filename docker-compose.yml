@@ -1,6 +1,5 @@
 services:
   # TEXT
-
   # https://github.com/oobabooga/text-generation-webui
   text-generation-webui:
     build: text/text-generation-webui
@@ -44,18 +43,59 @@ services:
     depends_on:
       - ollama
 
+  # Multi gen
+  comfyui:
+    user: 1000:1000
+    build: comfyui
+    ports:
+      - "8080:8080"
+    volumes:
+
+      - "./models/checkpoints:/app/models/checkpoints"
+      - "./models/clip:/app/models/clip"
+      - "./models/clip-vision:/app/models/clip-vision"
+      - "./models/controlnet:/app/models/controlnet"
+      - "./models/diffusers:/app/models/diffusers"
+      - "./models/diffusion_models:/app/models/diffusion_models"
+      - "./models/embeddings:/app/models/embeddings"
+      - "./models/hypernetworks:/app/models/hypernetworks"
+      - "./models/loras:/app/models/loras"
+      - "./models/style_models:/app/models/style_models"
+      - "./models/text_encoders:/app/models/text_encoders"
+      - "./models/unet:/app/models/unet"
+      - "./models/upscale_models:/app/models/upscale_models"
+      - "./models/vae:/app/models/vae"
+      - "./models/vae_approx:/app/models/vae_approx"
+      - "./output:/app/output"
+      - "./comfyui/custom_nodes:/app/custom_nodes"
+      - "./comfyui/user:/app/user"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
 
   # IMAGES
-  # https://github.com/AUTOMATIC1111/stable-diffusion-webui
-  stable-diffusion-webui:
+  # https://github.com/lllyasviel/stable-diffusion-webui-forge
+  forge:
     user: 1000:1000
-    build: images/stable-diffusion-webui
-    entrypoint: [ "python3", "webui.py", "--listen", "--port", "8080"]
+    build: images/forge
+    entrypoint: ["python", "-u", "webui.py", "--listen", "--port", "8080", "--cuda-malloc"]
     volumes:
-      - "./images/stable-diffusion-webui/outputs:/app/outputs"
-      - "./images/stable-diffusion-webui/models:/app/models"
-      - "./images/stable-diffusion-webui/embeddings:/app/embeddings"
-      - "./images/stable-diffusion-webui/extensions:/app/extensions"
+      - "./output:/app/outputs"
+      - "./models/checkpoints:/app/models/Stable-diffusion"
+      - "./models/controlnet:/app/models/ControlNet"
+      - "./models/clip_vision:/app/models/ControlNetPreprocessor/clip_vision"
+      - "./models/diffusers:/app/models/diffusers"
+      - "./models/hypernetworks:/app/models/hypernetworks"
+      - "./models/loras:/app/models/Lora"
+      - "./models/text_encoders:/app/models/text_encoder"
+      - "./models/vae:/app/models/VAE"
+      - "./models/vae_approx:/app/models/VAE-approx"
+      - "./models/embeddings:/app/embeddings"
+      - "./images/forge/extensions:/app/extensions"
     ports:
       - "8080:8080"
     deploy:
@@ -66,15 +106,23 @@ services:
               count: all
               capabilities: [ gpu ]
 
-  # https://github.com/lllyasviel/stable-diffusion-webui-forge
-  forge:
+  # https://github.com/AUTOMATIC1111/stable-diffusion-webui
+  stable-diffusion-webui:
     user: 1000:1000
-    build: images/forge
-    entrypoint: ["python", "-u", "webui.py", "--listen", "--port", "8080", "--cuda-malloc"]
+    build: images/stable-diffusion-webui
+    entrypoint: [ "python3", "webui.py", "--listen", "--port", "8080"]
     volumes:
-      - "./images/forge/outputs:/app/outputs"
-      - "./images/forge/models:/app/models"
-      - "./images/forge/embeddings:/app/embeddings"
+      - "./output:/app/outputs"
+      - "./models/checkpoints:/app/models/Stable-diffusion"
+      - "./models/controlnet:/app/models/ControlNet"
+      - "./models/clip_vision:/app/models/ControlNetPreprocessor/clip_vision"
+      - "./models/diffusers:/app/models/diffusers"
+      - "./models/hypernetworks:/app/models/hypernetworks"
+      - "./models/loras:/app/models/Lora"
+      - "./models/text_encoders:/app/models/text_encoder"
+      - "./models/vae:/app/models/VAE"
+      - "./models/vae_approx:/app/models/VAE-approx"
+      - "./models/embeddings:/app/embeddings"
       - "./images/forge/extensions:/app/extensions"
     ports:
       - "8080:8080"
@@ -92,10 +140,18 @@ services:
     build: images/reforge
     entrypoint: [ "python3", "webui.py", "--listen", "--port", "8080", "--cuda-malloc", "--cuda-stream", "--xformers"]
     volumes:
-      - "./images/reforge/outputs:/app/outputs"
-      - "./images/reforge/models:/app/models"
-      - "./images/reforge/embeddings:/app/embeddings"
-      - "./images/reforge/extensions:/app/extensions"
+      - "./output:/app/outputs"
+      - "./models/checkpoints:/app/models/Stable-diffusion"
+      - "./models/controlnet:/app/models/ControlNet"
+      - "./models/clip_vision:/app/models/ControlNetPreprocessor/clip_vision"
+      - "./models/diffusers:/app/models/diffusers"
+      - "./models/hypernetworks:/app/models/hypernetworks"
+      - "./models/loras:/app/models/Lora"
+      - "./models/text_encoders:/app/models/text_encoder"
+      - "./models/vae:/app/models/VAE"
+      - "./models/vae_approx:/app/models/VAE-approx"
+      - "./models/embeddings:/app/embeddings"
+      - "./images/forge/extensions:/app/extensions"
     ports:
       - "8080:8080"
     deploy:
